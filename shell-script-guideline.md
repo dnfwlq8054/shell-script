@@ -60,3 +60,84 @@ if ! do_something; then
   exit 1
 fi
 ```
+
+## 코멘트
+### 파일 헤더
+스크립트에 대한 설명을 파일 시작할때 작성합니다.
+
+모든 파일에는 내용에 대한 간략한 개요가 포함된 최상위 주석이 있어야 합니다. 저작권 표시 및 저자 정보는 선택 사항입니다.
+
+예시
+```shell script
+#!/bin/bash
+#
+# Perform hot backups of Oracle databases.
+```
+
+### 기능 설명
+명확하지 않고 짧지 않은 기능은 주석 처리되어야 합니다. 라이브러리의 모든 기능은 길이나 복잡성에 관계없이 주석 처리되어야 합니다.
+
+다른 사람이 코드를 읽지 않고 주석(제공되는 경우 자체 도움말)을 읽고 프로그램을 사용하거나 라이브러리의 기능을 사용하는 방법을 배울 수 있어야 합니다.
+
+모든 함수 주석은 다음을 사용하여 의도한 API 동작을 설명해야 합니다.
+ - 기능에 대한 설명입니다.
+ - 전역: 사용 및 수정된 전역 변수 목록입니다.
+ - 인수: 인수.
+ - 출력: STDOUT 또는 STDERR로 출력합니다.
+ - 반환값: 마지막 명령 실행의 기본 종료 상태 이외의 값을 반환합니다.
+
+예시:
+```shell script
+#######################################
+# Cleanup files from the backup directory.
+# Globals:
+#   BACKUP_DIR
+#   ORACLE_SID
+# Arguments:
+#   None
+#######################################
+function cleanup() {
+  …
+}
+
+#######################################
+# Get configuration directory.
+# Globals:
+#   SOMEDIR
+# Arguments:
+#   None
+# Outputs:
+#   Writes location to stdout
+#######################################
+function get_dir() {
+  echo "${SOMEDIR}"
+}
+
+#######################################
+# Delete a file in a sophisticated manner.
+# Arguments:
+#   File to delete, a path.
+# Returns:
+#   0 if thing was deleted, non-zero on error.
+#######################################
+function del_thing() {
+  rm "$1"
+}
+```
+
+### 구현 코멘트
+코드가 까다롭거나, 명확하지 않거나, 흥미롭거나, 중요한 부분에 주석을 답니다.
+
+이는 일반적인 Google 코딩 주석 관행을 따릅니다. 모든 댓글을 달지 마십시오. 복잡한 알고리즘이 있거나 비정상적인 작업을 수행하는 경우 간단한 설명을 입력하세요.
+
+### TODO 댓글
+임시적이거나 단기적인 해결책이거나 충분하지만 완벽하지 않은 코드에는 TODO 주석을 사용하십시오.
+
+이것은 [C++가이드](https://google.github.io/styleguide/cppguide.html#TODO_Comments) 의 규칙과 일치합니다 .
+
+`TODO`는 모두 대문자로 된 문자열을 포함해야 하며, 그 뒤에 참조하는 문제에 대한 가장 적절한것은 컨텍스트를 가진 사람의 이름, 전자메일 주소 또는 기타 식별자가 와야 합니다 주요 목적은 `TODO`요청시 더 자세한 정보를 얻는 방법을 찾기 위해 검색할 수 있는 일관성을 갖는 것입니다 . `TODO`는 언급된 사람이 문제를 해결할 것이라는 약속이 아닙니다. 따라서 `TODO`를 만들 때 거의 항상 이름이 지정됩니다.
+
+```shell script
+# TODO(mrmonkey): Handle the unlikely edge cases (bug ####)
+
+```
