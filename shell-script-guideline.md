@@ -141,3 +141,45 @@ function del_thing() {
 # TODO(mrmonkey): Handle the unlikely edge cases (bug ####)
 
 ```
+
+## 서식
+### 들여 쓰기
+
+탭 없이 2칸 들여쓰기.
+
+가독성을 높이려면 블록 사이에 빈 줄을 사용합니다.
+
+### 줄 길이와 긴 문자열
+최대 줄 글이는 80자 입니다.
+
+80자보다 긴 문자열을 작성해야 하는 경우 가능하면 here 문서 또는 포함된 개행 문자를 사용하여 작성해야 합니다. 80자보다 길어야 하고 현명하게 분할할 수 없는 리터럴 문자열은 괜찮지만 더 짧게 만드는 방법을 찾는 것이 좋습니다.
+
+```shell script
+# DO use 'here document's
+cat <<END
+I am an exceptionally long
+string.
+END
+
+# Embedded newlines are ok too
+long_string="I am an exceptionally
+long string."
+```
+
+### 파이프라인
+파이프라인이 한 줄에 모두 맞지 않으면 한 줄에 하나씩 분할해야 합니다.
+
+파이프라인이 한 줄에 모두 맞는 경우 한 줄에 있어야 합니다.
+
+
+그렇지 않은 경우 줄 바꿈에 파이프가 있고 파이프의 다음 섹션에 대해 2개의 공백 들여쓰기가 있는 줄당 하나의 파이프 세그먼트로 분할되어야 합니다. 
+```shell script
+# All fits on one line
+command1 | command2
+
+# Long commands
+command1 \
+  | command2 \
+  | command3 \
+  | command4
+```
