@@ -183,3 +183,169 @@ command1 \
   | command3 \
   | command4
 ```
+
+### 루프
+`for, while, if` 문에는 `;, do, then` 을 넣습니다.
+
+Example:
+```shell script
+# If inside a function, consider declaring the loop variable as
+# a local to avoid it leaking into the global environment:
+# local dir
+for dir in "${dirs_to_cleanup[@]}"; do
+  if [[ -d "${dir}/${ORACLE_SID}" ]]; then
+    log_date "Cleaning up old files in ${dir}/${ORACLE_SID}"
+    rm "${dir}/${ORACLE_SID}/"*
+    if (( $? != 0 )); then
+      error_message
+    fi
+  else
+    mkdir -p "${dir}/${ORACLE_SID}"
+    if (( $? != 0 )); then
+      error_message
+    fi
+  fi
+done
+```
+### switch문
+ - 2칸 들여씁니다.
+ - 다음 패턴으로 갈때는 `;;`로 개행.
+
+Example1:
+```shell script
+case "${expression}" in
+  a)
+    variable="…"
+    some_command "${variable}" "${other_expr}" …
+    ;;
+  absolute)
+    actions="relative"
+    another_command "${actions}" "${other_expr}" …
+    ;;
+  *)
+    error "Unexpected expression '${expression}'"
+    ;;
+esac
+```
+
+
+Example2:
+```shell script
+verbose='false'
+aflag=''
+bflag=''
+files=''
+while getopts 'abf:v' flag; do
+  case "${flag}" in
+    a) aflag='true' ;;
+    b) bflag='true' ;;
+    f) files="${OPTARG}" ;;
+    v) verbose='true' ;;
+    *) error "Unexpected option ${flag}" ;;
+  esac
+done
+```
+
+### 변수
+변수를 사용할 때 `$var` 보단 `${var}`를 더 선호합니다.
+
+이는 필수가 아니지만, 권장사항입니다.
+ - 기존 코드에서 찾은 내용과 일관성을 유지해야한다.
+ - 인용 변수를 아래 섹션을 참고.
+ - 꼭 필요하거나 깊은 혼란을 피하는 경우가 아니라면 단일 문자, 쉘 특수 문자, 매개변수 등을 중괄호로 구분하지 마십시오.
+ - 모든 변수는 중괄호로 구분하는 것을 선호합니다.
+
+Example:
+```shell script
+# Section of *recommended* cases.
+
+# Preferred style for 'special' variables:
+echo "Positional: $1" "$5" "$3"
+echo "Specials: !=$!, -=$-, _=$_. ?=$?, #=$# *=$* @=$@ \$=$$ …"
+
+# Braces necessary:
+echo "many parameters: ${10}"
+
+# Braces avoiding confusion:
+# Output is "a0b0c0"
+set -- a b c
+echo "${1}0${2}0${3}0"
+
+# Preferred style for other variables:
+echo "PATH=${PATH}, PWD=${PWD}, mine=${some_var}"
+while read -r f; do
+  echo "file=${f}"
+done < <(find /tmp)
+```
+참고: `${}`를 사용하는 것은 인용형식이 아닙니다. 인용형식은 `" "`도 사용해야 합니다.
+
+### 인용
+따옴표 없는 확장이 필요하거나, 쉘 내부 정수가 아닌 경우 변수, 명령 대체, 공백 또는 쉘 메타 문자가 포함된 문자열을 항상 인용하세요.
+
+```shell script
+# 'Single' quotes indicate that no substitution is desired.
+# "Double" quotes indicate that substitution is required/tolerated.
+
+# Simple examples
+
+# "quote command substitutions"
+# Note that quotes nested inside "$()" don't need escaping.
+flag="$(some_command and its args "$@" 'quoted separately')"
+
+# "quote variables"
+echo "${flag}"
+
+# Use arrays with quoted expansion for lists.
+declare -a FLAGS
+FLAGS=( --foo --bar='baz' )
+readonly FLAGS
+mybinary "${FLAGS[@]}"
+
+# It's ok to not quote internal integer variables.
+if (( $# > 3 )); then
+  echo "ppid=${PPID}"
+fi
+
+# "never quote literal integers"
+value=32
+# "quote command substitutions", even when you expect integers
+number="$(generate_number)"
+
+# "prefer quoting words", not compulsory
+readonly USE_INTEGER='true'
+
+# "quote shell meta characters"
+echo 'Hello stranger, and well met. Earn lots of $$$'
+echo "Process $$: Done making \$\$\$."
+
+# "command options or path names"
+# ($1 is assumed to contain a value here)
+grep -li Hugo /dev/null "$1"
+
+# Less simple examples
+# "quote variables, unless proven false": ccs might be empty
+git send-email --to "${reviewers}" ${ccs:+"--cc" "${ccs}"}
+
+# Positional parameter precautions: $1 might be unset
+# Single quotes leave regex as-is.
+grep -cP '([Ss]pecial|\|?characters*)$' ${1:+"$1"}
+
+# For passing on arguments,
+# "$@" is right almost every time, and
+# $* is wrong almost every time:
+#
+# * $* and $@ will split on spaces, clobbering up arguments
+#   that contain spaces and dropping empty strings;
+# * "$@" will retain arguments as-is, so no args
+#   provided will result in no args being passed on;
+#   This is in most cases what you want to use for passing
+#   on arguments.
+# * "$*" expands to one argument, with all args joined
+#   by (usually) spaces,
+#   so no args provided will result in one empty string
+#   being passed on.
+# (Consult `man bash` for the nit-grits ;-)
+
+(set -- 1 "2 two" "3 three tres"; echo $#; set -- "$*"; echo "$#, $@")
+(set -- 1 "2 two" "3 three tres"; echo $#; set -- "$@"; echo "$#, $@")
+```
