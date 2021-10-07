@@ -356,13 +356,14 @@ grep -cP '([Ss]pecial|\|?characters*)$' ${1:+"$1"}
 [ShellCheck](https://www.shellcheck.net/) 프로젝트는 쉘 스크립트에 대한 일반적인 버그 및 경고를 식별합니다. 크든 작든 모든 스크립트에 권장됩니다.
 
 ### 명령 대체
-백틱``` 대신 사용하십시오 .
+백틱<code>`</code> 대신 `$(command)`을 사용하십시오 .
 
-중첩된 백틱은 내부 백틱을 로 이스케이프해야 합니다 \ . $(command)중첩하고 쉽게 읽을 때 형식은 변경되지 않습니다.
+중첩된 백틱은 내부 백틱을 `(`)`로 이스케이프해야 합니다. `$(command)`는 중첩이 되며 쉽게 읽히고 충돌나지 않습니다.
 
 예시:
-
+```
 # This is preferred:
 var="$(command "$(command1)")"
 # This is not:
 var="`command \`command1\``"
+```
