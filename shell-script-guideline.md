@@ -361,7 +361,7 @@ grep -cP '([Ss]pecial|\|?characters*)$' ${1:+"$1"}
 중첩된 백틱은 내부 백틱을 <code>(\`)</code>로 이스케이프해야 합니다. `$(command)`는 중첩이 되며 쉽게 읽히고 충돌나지 않습니다.
 
 예시:
-```
+```c
 # This is preferred:
 var="$(command "$(command1)")"
 # This is not:
