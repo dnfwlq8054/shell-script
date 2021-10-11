@@ -367,3 +367,31 @@ var="$(command "$(command1)")"
 # This is not:
 var="`command \`command1\``"
 ```
+
+### Test, [ … ], and [[ … ]]
+`[[ … ]]`는 `[ … ]`, `test` 및 `/usr/bin/[`보다 선호됩니다.
+
+`[[ … ]]`는 `[[  ]]` 사이에 경로 이름 확장 또는 단어 분할이 발생하지 않으므로 오류를 줄입니다. 또한 `[[ … ]]`는 정규식 일치를 허용하지만 `[ … ]`는 그렇지 않습니다.
+
+```shell script
+# This ensures the string on the left is made up of characters in
+# the alnum character class followed by the string name.
+# Note that the RHS should not be quoted here.
+if [[ "filename" =~ ^[[:alnum:]]+name ]]; then
+  echo "Match"
+fi
+
+# This matches the exact pattern "f*" (Does not match in this case)
+if [[ "filename" == "f*" ]]; then
+  echo "Match"
+fi
+```
+
+``` shell script
+# This gives a "too many arguments" error as f* is expanded to the
+# contents of the current directory
+if [ "filename" == f* ]; then
+  echo "Match"
+fi
+For the gory details, see E14 at http://tiswww.case.edu/php/chet/bash/FAQ
+```
