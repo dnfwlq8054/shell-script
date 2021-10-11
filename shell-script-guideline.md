@@ -394,4 +394,4 @@ if [ "filename" == f* ]; then
   echo "Match"
 fi
 ```
-자세한 내용은 E14(http://tiswww.case.edu/php/chet/bash/FAQ)를 참조하십시오.
+자세한 내용은 E14 (http://tiswww.case.edu/php/chet/bash/FAQ) 를 참조하십시오.
