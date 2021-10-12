@@ -1,0 +1,15 @@
+#!/bin/bash
+
+SENIOR=("mark" "meta" "iwan" "maru" "bakha")
+JUNIOR=("hwani" "luke" "shu" "jayden" "mando")
+DAY=("Mo" "Tu" "We" "Th" "Fr" "Sa")
+LEN=${#SENIOR[@]}
+CURRENT_WEEK="$(date -d $@ +%V)"
+ROTATE=$(($CURRENT_WEEK % 5))
+
+for ((i=0; i<${LEN}; i++));
+do
+    echo "====${DAY[i]}===="
+    echo "${SENIOR[(((i + ROTATE) % 5))]}"
+    echo "${JUNIOR[(((i + 6 - ROTATE) % 5))]}"
+done
