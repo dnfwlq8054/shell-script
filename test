@@ -4,7 +4,7 @@ SENIOR=("mark" "meta" "iwan" "maru" "bakha")
 JUNIOR=("hwani" "luke" "shu" "jayden" "mando")
 DAY=("Mo" "Tu" "We" "Th" "Fr" "Sa")
 LEN=${#SENIOR[@]}
-CURRENT_WEEK="$(date -d $@ +%V)"
+CURRENT_WEEK="$(date $@ +%V)"
 ROTATE=$(($CURRENT_WEEK % 5))
 
 for ((i=0; i<${LEN}; i++));
