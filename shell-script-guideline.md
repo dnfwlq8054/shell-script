@@ -395,3 +395,81 @@ if [ "filename" == f* ]; then
 fi
 ```
 자세한 내용은 E14 (http://tiswww.case.edu/php/chet/bash/FAQ) 를 참조하십시오.
+
+### 문자열
+가능하면 문자열을 표시할 때 `" "` 를 사용합니다.
+
+Bash는 테스트에서 빈 문자열을 처리할 만큼 충분히 똑똑합니다. 따라서 코드가 훨씬 읽기 쉽다는 점을 감안할 때,
+문자가 없을 때는 `-z` 같은 명령어나 `""` 를 사용하여 빈 문자열을 찾아 내면 좋습니다.
+
+```shell script
+# Do this:
+if [[ "${my_var}" == "some_string" ]]; then
+  do_something
+fi
+
+# -z (string length is zero) and -n (string length is not zero) are
+# preferred over testing for an empty string
+if [[ -z "${my_var}" ]]; then
+  do_something
+fi
+
+# This is OK (ensure quotes on the empty side), but not preferred:
+if [[ "${my_var}" == "" ]]; then
+  do_something
+fi
+```
+
+```shell script
+# Not this:
+if [[ "${my_var}X" == "some_stringX" ]]; then
+  do_something
+fi
+```
+
+테스트 대상에 대한 혼동을 방지하려면 `-z `또는 `-n`을 명시적으로 사용합니다.
+```shell script
+# Use this
+if [[ -n "${my_var}" ]]; then
+  do_something
+fi
+
+# Instead of this
+if [[ "${my_var}" ]]; then
+  do_something
+fi
+```
+
+명확성을 위해 둘 다 작동하더라도 `=`가 아니라 `==`를 사용하십시오. 
+
+`=` 는 대입으로 혼동할 수 있습니다.
+
+수치 비교를 할 때 `<` 및 `>`를 사용하는데, 주의해야 합니다. 수치 비교를 위해 `(( … ))` 또는 `-lt` 및 `-gt`를 사용합니다.
+```shell script
+# Use this
+if [[ "${my_var}" == "val" ]]; then
+  do_something
+fi
+
+if (( my_var > 3 )); then
+  do_something
+fi
+
+if [[ "${my_var}" -gt 3 ]]; then
+  do_something
+fi
+```
+
+```shell script
+# Instead of this
+if [[ "${my_var}" = "val" ]]; then
+  do_something
+fi
+
+# Probably unintended lexicographical comparison.
+if [[ "${my_var}" > 3 ]]; then
+  # True for 4, false for 22.
+  do_something
+fi
+```
+
