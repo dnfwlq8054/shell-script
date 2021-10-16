@@ -4,7 +4,7 @@
 
 #### 최경환 ###
 
-BACKEND_WARRIOR=("hwani" "mark" "maru" "luke" "mando" "jaden")
+BACKEND_WARRIOR=("hwani" "jaden" "mandoo" "mark" "maru" "shu" "iwan" "luke" "meta")
 LEN="${#BACKEND_WARRIOR[@]}"
 IDX=0
 YEAR="${1}"                                 #년도를 저장하기 위한 변수
