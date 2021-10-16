@@ -14,7 +14,6 @@ DAY=1                                   #일수를 나타내기 위한 변수
 COUNT=0                                 #이 변수는 그달의 공백을 정해주는 중요한 변수 입니다.
 j=0                                     #공백을 반복시킬 변수
 i=0                                     #그 해의 달만 출력할때 쓸 변수
-SUM=0                                   #그 해의 달만 출력할때 시작 요일을 결정해 주기위한 그 전달 일수의 합
 IDX=0
 LEN=${#BACKEND[@]}
 
@@ -143,16 +142,8 @@ then
         DAY=1
         N=`expr $N + 1`
     done
-    
-    while [[ $i -lt `expr $MONTH - 1` ]]      #해당 년도에 대한 달을 출력하기위해선 그 달의 시작 요일을 알아야 합니다.
-    do                                      #그럼 우선 그해의 1월 1일 시작 요일을 알아낸 후 그해의 달 앞에 일수의 합 즉,
-        SUM=`expr ${DAY_LIST[$i]} + $SUM`    #3월달이라고하면 1월과 2월달의 총합에다가 그해의 1월 1일인 변수값 COUNT값을 더한 후
-        i=`expr $i + 1`                 #7로 나누어주면 저희가 원하는 그 해의 그 달의 시작점을 도출해 낼 수 있습니다.
-    done
 
-    #COUNT=`expr \( $SUM + $COUNT \) % 7`    #여기서 그해의 달 전까지의 일수 합과 COUNT 값을 더하고 난 후에 7로 나누어 주고 있습니다.
-
-    while [[ $j -lt $COUNT ]]        #여기 COUNT의 동작은 위 if문의 COUNT동작과 일치합니다.
+    while [[ $j -lt $COUNT ]] 
     do
         echo -n -e "\t"
         j=`expr $j + 1`
@@ -163,9 +154,9 @@ then
         if [[ $COUNT == 6 ]]
         then
             echo -n -e "\t"
-        elif [[ $COUNT == 7 ]]     #7개 출력하면 다음으로 넘어가게끔 만들었습니다.
-        then                    #그리고 COUNT값 초기화를 7일때만 초기화 시킴으로써 다음달로 넘어갔을때
-            echo            #이어서 요일을 기억해 출력해주고 있습니다.
+        elif [[ $COUNT == 7 ]]  
+        then                   
+            echo            
             echo -n -e "\t"
             COUNT=0
         else
@@ -174,7 +165,7 @@ then
         fi
         DAY=`expr $DAY + 1`
         COUNT=`expr $COUNT + 1`
-    done                                    #해당 년도의 달만 출력하고 끝나는 곳이라 변수값들에 대한초기화를 안넣었습니다.
+    done                                   
     echo
 else
     echo "명령어 사용 법 : ./cal1 [YEAR] [MONTH] or [MONTH] [YEAR]"     #인자값이 3개 이상일경우엔 다음과 같은 사용방법을 출려해주는 echo문 입니다.
