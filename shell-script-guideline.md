@@ -473,3 +473,52 @@ if [[ "${my_var}" > 3 ]]; then
 fi
 ```
 
+### 파일 와일드 카드( * )
+파일을 가져올 때 앞에 `./` 을 붙여줍니다.
+
+그렇지 않으면 원치 않은 파일을 삭제, 수정할 수 있습니다.
+
+```shell script
+# Here's the contents of the directory:
+# -f  -r  somedir  somefile
+
+# Incorrectly deletes almost everything in the directory by force
+psa@bilby$ rm -v *
+removed directory: `somedir'
+removed `somefile'
+```
+
+```shell script
+# As opposed to:
+psa@bilby$ rm -v ./*
+removed `./-f'
+removed `./-r'
+rm: cannot remove `./somedir': Is a directory
+removed `./somefile'
+```
+
+## 배열
+Bash 배열은 인용 복잡성을 피하기 위해 요소 목록을 저장하는 데 사용해야 합니다. 
+
+보다 복잡한 데이터 구조를 용이하게 하기 위해 배열을 사용해서는 안 됩니다.(heap 정렬 이런거?)
+
+배열은 정렬된 문자열 모음을 저장하고 명령 또는 루프에 대한 개별 요소로 안전하게 확장할 수 있습니다.
+
+```shell script
+# An array is assigned using parentheses, and can be appended to
+# with +=( … ).
+declare -a flags
+flags=(--foo --bar='baz')
+flags+=(--greeting="Hello ${name}")
+mybinary "${flags[@]}"
+```
+
+```shell script
+# Don’t use strings for sequences.
+flags='--foo --bar=baz'
+flags+=' --greeting="Hello world"'  # This won’t work as intended.
+mybinary ${flags}
+```
+
+
+
