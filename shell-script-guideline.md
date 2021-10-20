@@ -532,3 +532,57 @@ mybinary ${flags}
 
 쌍따옴표가 붙은 확장을 사용합니다. `"${array[@]}"`
 
+### Pipes to While
+while로 파이프하는 대신 프로세스 대체 또는 내장 `readarray(bash4+)`를 사용합니다. 
+파이프는 서브쉘을 생성하므로 파이프라인 내에서 수정된 모든 변수는 상위 쉘로 전파되지 않습니다.
+
+```shell script
+# bad...
+
+last_line='NULL'
+echo 'hi' | while read -r line; do
+  if [[ -n "${line}" ]]; then
+    last_line="${line}"
+  fi
+done
+
+# This will always output 'NULL'!
+echo "${last_line}"
+```
+
+```shell script
+# good!!
+last_line='NULL'
+temp='a b c d e f g'
+while read line; do
+  if [[ -n "${line}" ]]; then
+    last_line="${line}"
+  fi
+done < <(echo "${temp}")
+
+# This will output the last non-empty line from ${temp}
+echo "${last_line}"
+```
+
+내장 명령어 `readarray`를 사용하여, 파일을 배열로 읽은 다음 배열의 내용을 반복합니다. 
+
+(위와 같은 이유로) 파이프가 아닌 `readarray`로 프로세스 대체를 사용해야 하지만 루프에 대한 입력 생성이 이후가 아니라 이전에 위치한다는 이점이 있습니다.
+
+```shell script
+# This will output the last non-empty line from your_command
+echo "${last_line}"
+
+last_line='NULL'
+readarray -t lines < <(echo "a b c d e f g")
+for line in "${lines[@]}"; do
+  if [[ -n "${line}" ]]; then
+    last_line="${line}"
+  fi
+done
+echo "${last_line}"
+```
+
+| 
+참고: for 루프를 사용하여 $(...)의 for var에서와 같이 출력을 반복하는 데 주의하십시오. 출력이 줄이 아닌 공백으로 분할되기 때문입니다. 출력에 예기치 않은 공백이 포함될 수 없기 때문에 이것이 안전하다는 것을 알 수 있지만 이것이 명확하지 않거나 가독성을 향상시키지 않는 경우(예: $(...) 내부의 긴 명령), while 읽기 루프 또는 readarray는 종종 더 안전하고 명확합니다.
+
+
