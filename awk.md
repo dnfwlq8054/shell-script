@@ -12,5 +12,41 @@ awk에는 여러가지 기능이 있다.
 - split	문자열을 분리하여 배열로 반환
 - printf	지정한 포맷에 따라 함수 출력
 
+### split
+```shell script
+awk '{split($0, d, "lambda/"); print d[3]}' sync.list
 ```
 
+### length
+``` shell script
+echo "a11 b c de" | awk '{print length($1)}'
+
+# output:
+3
+```
+
+### printf
+``` shell script
+echo "asiflzseilfz.zip" | awk '{printf "%.10s\n", $1}'
+
+# output:
+asiflzseil
+```
+
+### substr
+``` shell script 
+echo "download: s3 ziselfjzls.zip" | awk '{print substr($3, 0, length($3) -4)}'
+
+# output:
+ziselfjzls
+```
+
+### -F
+``` shell script
+echo "asd.eri:eir zzz" | awk -F'[.: ]' '{for(i=1; i < NF; i++) print $i}'
+
+# output:
+asd
+eri
+eir
+````
