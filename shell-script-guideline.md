@@ -1,5 +1,5 @@
 https://google.github.io/styleguide/shellguide.html#s4.2-function-comments
-
+https://mug896.github.io/awk-script/builtin_variables.html
 
 # 구글의 쉘 스타일 가이드를 읽고 공부할겸 번역하고 있습니다.
 
