@@ -589,4 +589,49 @@ echo "${last_line}"
 > 
 > while 읽기 루프 또는 readarray는 종종 더 안전하고 명확합니다.
 
+### 계산
+계산을 할 때 `let`, `$[]`, `expr` 보다 `((...))` or `$((...))` 를 사용하는게 좋습니다.
 
+`[[...]]` 에서는 `<`, `>` 연산이 수행되지 않습니다.(대신 사전표전 편차로 비교를 합니다. 문자열 기준)
+
+때문에 무언가를 비교할때는 `((...))` 안에서 사용하도록 합시다.
+
+`(( … ))`를 독립형 명령문으로 사용하지 않는 것이 좋습니다. 그렇지 않으면 표현식이 0으로 평가되는 것을 주의하십시오.
+
+```shell script
+# Simple calculation used as text - note the use of $(( … )) within
+# a string.
+echo "$(( 2 + 2 )) is 4"
+
+# When performing arithmetic comparisons for testing
+if (( a < b )); then
+  …
+fi
+
+# Some calculation assigned to a variable.
+(( i = 10 * j + 400 ))
+```
+
+```shell script
+# This form is non-portable and deprecated
+i=$[2 * 10]
+
+# Despite appearances, 'let' isn't one of the declarative keywords,
+# so unquoted assignments are subject to globbing wordsplitting.
+# For the sake of simplicity, avoid 'let' and use (( … ))
+let i="2 + 2"
+
+# The expr utility is an external program and not a shell builtin.
+i=$( expr 4 + 4 )
+
+# Quoting can be error prone when using expr too.
+i=$( expr 4 '*' 4 )
+```
+
+스타일 고려 사항은 제쳐두고, 쉘의 내장 산술은 expr보다 몇 배나 빠릅니다.
+
+변수를 사용할 때 `${var}`및 `$var` 형식은 `$(( … ))` 내에서 필요하지 않습니다. 
+
+셸은 `var`를 찾는 것을 알고 `${…}`를 생략하면 코드가 더 깔끔해집니다. 
+
+이것은 항상 중괄호를 사용한다는 이전 규칙과 약간 상반되므로 권장 사항일 뿐입니다.
