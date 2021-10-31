@@ -1,6 +1,5 @@
 https://google.github.io/styleguide/shellguide.html#s4.2-function-comments
 
-
 # 구글의 쉘 스타일 가이드를 읽고 공부할겸 번역하고 있습니다.
 
 ## 배경 
@@ -532,3 +531,131 @@ mybinary ${flags}
 
 쌍따옴표가 붙은 확장을 사용합니다. `"${array[@]}"`
 
+### Pipes to While
+while로 파이프하는 대신 프로세스 대체 또는 내장 `readarray(bash4+)`를 사용합니다. 
+파이프는 서브쉘을 생성하므로 파이프라인 내에서 수정된 모든 변수는 상위 쉘로 전파되지 않습니다.
+
+```shell script
+# bad...
+
+last_line='NULL'
+echo 'hi' | while read -r line; do
+  if [[ -n "${line}" ]]; then
+    last_line="${line}"
+  fi
+done
+
+# This will always output 'NULL'!
+echo "${last_line}"
+```
+
+```shell script
+# good!!
+last_line='NULL'
+temp='a b c d e f g'
+while read line; do
+  if [[ -n "${line}" ]]; then
+    last_line="${line}"
+  fi
+done < <(echo "${temp}")
+
+# This will output the last non-empty line from ${temp}
+echo "${last_line}"
+```
+
+내장 명령어 `readarray`를 사용하여, 파일을 배열로 읽은 다음 배열의 내용을 반복합니다. 
+
+(위와 같은 이유로) 파이프가 아닌 `readarray`로 프로세스 대체를 사용해야 하지만 루프에 대한 입력 생성이 이후가 아니라 이전에 위치한다는 이점이 있습니다.
+
+```shell script
+# This will output the last non-empty line from your_command
+echo "${last_line}"
+
+last_line='NULL'
+readarray -t lines < <(echo "a b c d e f g")
+for line in "${lines[@]}"; do
+  if [[ -n "${line}" ]]; then
+    last_line="${line}"
+  fi
+done
+echo "${last_line}"
+```
+
+> 참고: for 루프를 사용하여 $(...)의 for var에서와 같이 출력을 반복하는 데 주의하십시오.
+> 
+> 출력이 줄이 아닌 공백으로 분할되기 때문입니다.
+> 
+> 출력에 예기치 않은 공백이 포함될 수 없기 때문에 이것이 안전하다는 것을 알 수 있지만, 이것이 명확하지 않거나 가독성을 향상시키지 않는 경우(예: $(...) 내부의 긴 명령),
+> 
+> while 읽기 루프 또는 readarray는 종종 더 안전하고 명확합니다.
+
+### 계산
+계산을 할 때 `let`, `$[]`, `expr` 보다 `((...))` or `$((...))` 를 사용하는게 좋습니다.
+
+`[[...]]` 에서는 `<`, `>` 연산이 수행되지 않습니다.(대신 사전표전 편차로 비교를 합니다. 문자열 기준)
+
+때문에 무언가를 비교할때는 `((...))` 안에서 사용하도록 합시다.
+
+`(( … ))`를 독립형 명령문으로 사용하지 않는 것이 좋습니다. 그렇지 않으면 표현식이 0으로 평가되는 것을 주의하십시오.
+
+```shell script
+# Simple calculation used as text - note the use of $(( … )) within
+# a string.
+echo "$(( 2 + 2 )) is 4"
+
+# When performing arithmetic comparisons for testing
+if (( a < b )); then
+  …
+fi
+
+# Some calculation assigned to a variable.
+(( i = 10 * j + 400 ))
+```
+
+```shell script
+# This form is non-portable and deprecated
+i=$[2 * 10]
+
+# Despite appearances, 'let' isn't one of the declarative keywords,
+# so unquoted assignments are subject to globbing wordsplitting.
+# For the sake of simplicity, avoid 'let' and use (( … ))
+let i="2 + 2"
+
+# The expr utility is an external program and not a shell builtin.
+i=$( expr 4 + 4 )
+
+# Quoting can be error prone when using expr too.
+i=$( expr 4 '*' 4 )
+```
+
+스타일 고려 사항은 제쳐두고, 쉘의 내장 산술은 expr보다 몇 배나 빠릅니다.
+
+변수를 사용할 때 `${var}`및 `$var` 형식은 `$(( … ))` 내에서 필요하지 않습니다. 
+
+셸은 `var`를 찾는 것을 알고 `${…}`를 생략하면 코드가 더 깔끔해집니다. 
+
+이것은 항상 중괄호를 사용한다는 이전 규칙과 약간 상반되므로 권장 사항일 뿐입니다.
+
+## 명명 규칙
+
+### 함수 이름
+
+단어를 구분하기 위해 밑줄이 있는 소문자를 사용합니다. (카멜은 사용 안하나?)
+
+`::`로 라이브러리를 구분합니다. 함수 이름 뒤에 괄호가 필요합니다. 키워드 기능은 선택 사항이지만 프로젝트 전체에서 일관되게 사용해야 합니다.
+
+단일 기능을 작성하는 경우 소문자를 사용하고 밑줄로 단어를 구분하십시오. 패키지를 작성하는 경우 패키지 이름을 `::` 로 구분.
+
+중괄호는 함수 이름과 같은 줄에 있어야 하며(Google의 다른 언어와 마찬가지로) 함수 이름과 괄호 사이에 공백이 없어야 합니다.
+
+```shell script
+# Single function
+my_func() {
+  …
+}
+
+# Part of a package
+mypackage::my_func() {
+  …
+}
+```
