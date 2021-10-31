@@ -6,8 +6,10 @@
 
 #### 최경환 ###
 
-BACKEND_WARRIOR=("hwani" "jaden" "mandoo" "mark" "maru" "shu" "iwan" "luke" "meta")
-LEN="${#BACKEND_WARRIOR[@]}"
+BACKEND_WARRIOR1=("mark" "maru" "iwan" "meta")
+BACKEND_WARRIOR2=("hwani" "jaden" "pio" "poter" "mandoo" "jally" "luke" "shu")
+LEN1="${#BACKEND_WARRIOR1[@]}"
+LEN2="${#BACKEND_WARRIOR2[@]}"
 IDX=0
 YEAR="${1}"                                 #년도를 저장하기 위한 변수
 MONTH="${2}"                                #달을 저장하기 위한 변수
@@ -73,18 +75,20 @@ YEAR=`expr ${YEAR} + 1` #년도 출력을 편하게 하기 위해서 다시 -1�
 if [[ ("${#}" == 1 && "${1}" -gt 12) || "${#}" == 0 ]] #입력값이 1개거나 아에 없으면 해당년도나 입력된 년도를 출력하기위한 if문
 then
     MONTH=0         #이부분은 월값이 없음으로 MONTH값을 0으로 초기화 시켜 줍니다.
+    N1=0
+    N2=0
     echo -e "\t\t  ${YEAR}년 달력"
     while [[ "${MONTH}" -lt 12 ]]
     do
         echo "\n`expr ${MONTH} + 1`월"
-        echo "일\t월\t화\t수\t목\t금\t토"
-
-        while [ "${j}" -lt "${COUNT}" ] #해당 년도 1월1일의 값을 위에서 구한 COUNT값 만큼 반복해주면서
+        echo "일\t월\t\t화\t\t수\t\t목\t\t금\t\t토"
+        
+        while [ "${j}" -lt "$((COUNT - 1))" ] #해당 년도 1월1일의 값을 위에서 구한 COUNT값 만큼 반복해주면서
         do                      #시작 요일을 결정합니다.
-            echo "\t\c"
+            echo "\t\t\c"
             j=`expr ${j} + 1`
         done
-
+        echo "\t\c"
         while [[ "${DAY}" -le "${DAY_LIST[${MONTH}]}" ]] #시작요일이 결정됫으면 그해당 년도의 달의 일수를 출력해 줍니다.
         do
             if [[ "${COUNT}" == 6 ]]
@@ -96,7 +100,16 @@ then
                 echo "\t\c"
                 COUNT=0
             else
-                echo "${BACKEND_WARRIOR[${IDX} % ${LEN}]}\t\c"
+                
+                if (((IDX % 4) == 0)); then 
+                    N1=$((N1 + 1))
+                fi
+
+                if (((IDX % 8) == 0)); then
+                    N2=$((N2 + 1))
+                fi
+
+                echo "${BACKEND_WARRIOR1[(((IDX + N1) % LEN1))]}, ${BACKEND_WARRIOR2[(((IDX + LEN2 - 1 - N2) % LEN2))]}\t\c"
                 IDX=`expr ${IDX} + 1`
             fi
             DAY=`expr ${DAY} + 1`
@@ -115,9 +128,11 @@ then
     fi
 
     echo "\n\t\t  ${YEAR}년 ${MONTH}월"
-    echo "일\t월\t화\t수\t목\t금\t토"
+    echo "일\t월\t\t화\t\t수\t\t목\t\t금\t\t토"
 
     N=0
+    N1=0
+    N2=0
     while [[ "${N}"+1 -lt "${MONTH}" ]]
     do
         while [[ "${DAY}" -le "${DAY_LIST[${N}]}" ]]
@@ -129,8 +144,17 @@ then
             then
                 COUNT=0
             else
+            
+            if (((IDX % 4) == 0)); then 
+                N1=$((N1 + 1))
+            fi
+
+            if (((IDX % 8) == 0)); then
+                N2=$((N2 + 1))
+            fi
                 IDX=`expr ${IDX} + 1`
             fi
+            
             DAY=`expr ${DAY} + 1`
             COUNT=`expr ${COUNT} + 1`
         done
@@ -138,12 +162,12 @@ then
         N=`expr ${N} + 1`
     done
 
-    while [[ "${j}" -lt "${COUNT}" ]] 
+    while [[ "${j}" -lt "$((COUNT - 1))" ]] 
     do
-        echo "\t\c"
+        echo "\t\t\c"
         j=`expr ${j} + 1`
     done
-
+    echo "\t\c"
     while [[ "${DAY}" -le "${DAY_LIST[${MONTH} - 1]}" ]]     #여기는 해당 달을 입력받기때문에 배열은 0번부터 시작함으로 -1을 해줍니다.
     do
         if [[ "${COUNT}" == 6 ]]
@@ -155,7 +179,15 @@ then
             echo "\t\c"
             COUNT=0
         else
-            echo "${BACKEND_WARRIOR[${IDX} % ${LEN}]}\t\c"
+            if (((IDX % 4) == 0)); then 
+                N1=$((N1 + 1))
+            fi
+
+            if (((IDX % 8) == 0)); then
+                N2=$((N2 + 1))
+            fi
+
+            echo "${BACKEND_WARRIOR1[(((IDX + N1) % LEN1))]}, ${BACKEND_WARRIOR2[(((IDX + LEN2 - 1 - N2) % LEN2))]}\t\c"
             IDX=`expr ${IDX} + 1`
         fi
         DAY=`expr ${DAY} + 1`
