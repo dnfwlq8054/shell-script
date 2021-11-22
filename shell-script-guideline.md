@@ -659,3 +659,28 @@ mypackage::my_func() {
   …
 }
 ```
+
+### 변수 이름
+루프에 대한 변수 이름은 비슷하게 가져갑니다.
+```shell script
+for zone in "${zones[@]}"; do
+  something_with "${zone}"
+done
+```
+
+### 상수 및 환경 변수 이름
+밑줄로 구분된 모든 대문자는 파일의 맨 위에 선언됩니다.
+
+상수 및 환경으로 내보내는 모든 항목은 대문자로 표시해야 합니다.
+
+```shell script
+# Constant
+readonly PATH_TO_FILES='/some/path'
+
+# Both constant and environment
+declare -xr ORACLE_SID='PROD'
+```
+일부 항목은 첫 번째 설정에서 일정해집니다(예: getopts를 통해). 
+
+따라서 getopts에서 또는 조건에 따라 상수를 설정하는 것이 좋지만 직후에는 읽기 전용으로 설정해야 합니다. 명확성을 위해 readonly또는 export동등한 declare명령 대신 권장됩니다.
+
